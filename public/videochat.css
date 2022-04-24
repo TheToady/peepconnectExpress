@@ -1,0 +1,390 @@
+:root {
+    font-size: 30px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    --text-primary: rgb(97, 97, 97);
+    --text-secondary: #754ce6;
+    --bg-secondary: rgb(24, 21, 34);
+
+    --color-pink: #b01dbd;
+    --color-purple: #754ce6;
+    --color-trans-black: rgba(0, 0, 0, 0.363);
+    --color-bg-primary: rgb(35, 31, 51);
+    --color-bg-secondary: rgb(24, 21, 34);
+    --color-text-gray: rgb(97, 97, 97);
+}
+
+p,a,hr,html,body,button {
+    margin: 0;
+    color: var(--color-text-gray);
+}
+
+button {
+    background: var(--color-bg-primary);
+    border: 0;
+    font-size: 20px;
+}
+
+button:hover {
+    background: var(--color-bg-secondary);
+}
+
+button:active {
+    background-color: rgb(59, 59, 59);
+}
+
+html {
+    background-image: linear-gradient(135deg, var(--color-pink), var(--color-purple));
+    height: 100vh;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    padding: 3vh 1.5vw 0 5vw;
+}
+
+body::-webkit-scrollbar {
+    width: 0.30rem;
+}
+
+body::-webkit-scrollbar-track {
+    background:rgb(59, 59, 59);
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: var(--color-purple);
+}
+
+
+
+/*  NavBar */
+
+.navbar {
+    z-index: 10;
+    position: fixed;
+    background-color: var(--color-bg-primary);
+    transition: width 200ms ease;
+}
+
+.navbar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-item {
+    width: 100%;
+}
+
+
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    text-decoration: none;
+    filter: grayscale(100%) opacity(0.7);
+    transition: 200ms;
+}
+
+.nav-link:hover {
+    filter: grayscale(0%) opacity(1);
+    background: var(--color-bg-secondary);
+    color: var(--color-purple);
+}
+
+.link-text {
+    display: none;
+    margin-left: 1rem;
+    font-size: 25px;
+}
+
+.nav-link svg {
+    width: 1rem;
+    margin: 0 0.5rem;
+}
+
+
+.fa-color {
+    color: #754ce6;
+}
+
+.logo {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    text-align: center;
+    background: var(--color-bg-secondary);
+    color: var(--color-purple);
+    letter-spacing: 0.2ch;
+    width: 100%;
+}
+
+.logo svg {
+    transform: rotate(0deg);
+    transition: transform 1200ms;
+}
+
+.navbar:hover .logo svg {
+    transform: rotate(-360deg);
+}
+
+
+
+/*  Body */
+
+.vidContainer {
+    background-color: var(--color-trans-black);
+}
+
+#uiContainer {
+    background-color: var(--color-trans-black);
+}
+
+#testContainer {
+    background-color: var(--color-trans-black);
+}
+#test-text {
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#buttonContainer {
+    background-color: var(--color-trans-black);
+}
+
+#stop-button {
+    background-color: rgb(133, 26, 70);
+    color: var(--color-bg-primary);
+}
+
+#search-button {
+    background-color: rgb(26, 133, 31);
+    color: var(--color-bg-primary);
+}
+
+#stop-button:hover {
+    background-color: rgb(95, 20, 52);
+    color: var(--color-bg-primary);
+}
+
+#search-button:hover {
+    background-color: rgb(22, 102, 26);
+    color: var(--color-bg-primary);
+}
+
+
+/* Small Screens */
+@media only screen and (max-width: 900px) {
+
+    /* NavBar */
+
+    .navbar {
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 2rem;
+    }
+
+    .logo {
+        display: none;
+    }
+
+    .navbar-nav {
+        flex-direction: row;
+    }
+
+    .nav-link {
+        justify-content: center;
+        height: 2rem;
+    }
+
+    main {
+        margin: 0;
+    }
+
+    /* Body */
+
+    #videosContainer {
+        height: 30vh;
+        position: relative;
+    }
+
+    #container-remoteVid {
+        z-index: 1;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
+
+    #video-remoteVid {
+        height: 100%;
+        width: 100%;
+    }
+
+    #container-localVid {
+        position: absolute;
+        z-index: 2;
+        bottom: 0;
+        right: 0;
+        background-color: var(--color-trans-black);
+        height: 40%;
+        width: 40%;
+    }
+
+    #video-localVid {
+        height: 100%;
+        width: 100%;
+    }
+
+    #uiContainer {
+        margin-top: 3vh;
+        height: 52vh;
+    }
+
+    #testContainer {
+        display: none;
+    }
+
+    .button {
+        margin: 1.3vh;
+        padding: 0.3rem 0.8rem;
+    }
+
+    #buttonContainer {
+        position: relative;
+        float: right;
+        width: 100%;
+        height: 8vh;
+    }
+    
+    #stop-button {
+        position: absolute;
+        font-size: 24px;
+        padding: 0.3rem 0.87rem;
+        top: 0;
+        right: 0;
+    }
+
+    #search-button {
+        position: absolute;
+        font-size: 24px;
+        padding: 0.3rem 0.4rem;
+        top: 0;
+        right: 0;
+    }
+
+    #next-button {
+        float: right;
+        font-size: 24px;
+        padding: 0.3rem 0.8rem;
+        margin-right: 4.6rem;
+    }
+}
+
+/* Large Screens */
+@media only screen and (min-width: 900px) {
+
+    /* NavBar */
+
+    .navbar {
+        width: 2rem;
+        height: 100vh;
+        top: 0;
+        left: 0;
+    }
+
+    .navbar:hover {
+        width: 14rem;
+    }
+
+    .navbar:hover .link-text {
+        display: block;
+    }
+    
+    .navbar:hover .nav-link svg {
+        margin: 0 1.5rem;
+    }
+
+    .nav-item:last-child {
+        margin-top: auto;
+    }
+
+    .nav-link {
+        height: 3rem;
+    }
+
+    /* Body */
+
+    #videosContainer {
+        height: 50vh;
+    }
+
+    .vidContainer {
+        width: 48.65%;
+        height: 100%;
+        float: left;
+    }
+
+    .video {
+        padding: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    #container-remoteVid {
+        margin-left: 2.5vw;
+    }
+
+    #uiContainer {
+        margin-top: 3vh;
+        height: 41vh;
+    }
+
+    #testContainer {
+        height: 6vh;
+        width: 84%;
+        float: left;
+    }
+
+    #test-text {
+        margin: 1.7vh 1vh;
+        float: left;
+        width: 80%;
+    }
+
+    .button {
+        margin: 1.3vh;
+        padding: 0.2rem 0.7rem;
+    }
+
+    #test-button {
+        float: right;
+    }
+
+    #buttonContainer {
+        position: relative;
+        float: right;
+        width: 8.7rem;
+        height: 6vh;
+    }
+    
+    #stop-button {
+        position: absolute;
+        padding: 0.2rem 1.1rem;
+        top: 0;
+        right: 0;
+    }
+
+    #search-button {
+        position: absolute;
+        padding: 0.2rem 0.69rem;
+        top: 0;
+        right: 0;
+    }
+}

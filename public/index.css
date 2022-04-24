@@ -1,0 +1,162 @@
+:root {
+    font-size: 30px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    --text-primary: rgb(97, 97, 97);
+    --text-secondary: #754ce6;
+    --bg-secondary: rgb(24, 21, 34);
+
+    --color-pink: #b01dbd;
+    --color-purple: #754ce6;
+    --color-trans-black: rgba(0, 0, 0, 0.363);
+    --color-bg-primary: rgb(35, 31, 51);
+    --color-bg-secondary: rgb(24, 21, 34);
+    --color-text-gray: rgb(97, 97, 97);
+}
+
+p,a,hr,html,body,button {
+    margin: 0;
+    color: var(--color-text-gray);
+}
+
+button {
+    background: var(--color-bg-primary);
+    border: 0;
+    font-size: 20px;
+}
+
+button:hover {
+    background: var(--color-bg-secondary);
+}
+
+button:active {
+    background-color: rgb(59, 59, 59);
+}
+
+html {
+    background-image: linear-gradient(135deg, var(--color-pink), var(--color-purple));
+    height: 100vh;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body::-webkit-scrollbar {
+    width: 0.30rem;
+}
+
+body::-webkit-scrollbar-track {
+    background:rgb(59, 59, 59);
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: var(--color-purple);
+}
+
+/* navbar */
+
+.navbar {
+    z-index: 10;
+    position: fixed;
+    background-color: var(--color-bg-primary);
+    transition: width 150ms ease;
+    width: 2rem;
+    height: 100vh;
+    top: 0;
+    left: 0;
+}
+
+.navbar:hover {
+    width: 14rem;
+}
+
+.navbar:hover .link-text {
+    display: block;
+}
+
+.navbar:hover .nav-link svg {
+    margin: 0 1.5rem;
+}
+
+.navbar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-item {
+    width: 100%;
+}
+
+.nav-item:last-child {
+    margin-top: auto;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    text-decoration: none;
+    filter: grayscale(100%) opacity(0.7);
+    transition: 200ms;
+    height: 3rem;
+}
+
+.nav-link:hover {
+    filter: grayscale(0%) opacity(1);
+    background: var(--color-bg-secondary);
+    color: var(--color-purple);
+}
+
+.link-text {
+    display: none;
+    margin-left: 1rem;
+    font-size: 25px;
+}
+
+.nav-link svg {
+    width: 1rem;
+    margin: 0 0.5rem;
+}
+
+
+.fa-color {
+    color: #754ce6;
+}
+
+.logo {
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    text-align: center;
+    background: var(--color-bg-secondary);
+    color: var(--color-purple);
+    letter-spacing: 0.2ch;
+    width: 100%;
+}
+
+.logo svg {
+    transform: rotate(0deg);
+    transition: transform 1200ms;
+}
+
+.navbar:hover .logo svg {
+    transform: rotate(-360deg);
+}
+
+/* body */
+
+section {
+    min-height: 100vh;
+    margin-left: 2rem;
+}
+
+#about {
+    background-color: var(--color-bg-secondary);
+}
