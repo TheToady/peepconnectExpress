@@ -42,5 +42,5 @@ app.all('*', (req, res) => {
 
 
 http.listen(httpPort,() => {
-    console.log('\x1b[33m%s\x1b[0m','Http server is running on port ' + httpPort);
+    console.log('\x1b[33m%s\x1b[0m','\nSERVER: Server is running on port ' + httpPort);
 });
