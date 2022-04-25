@@ -1,3 +1,6 @@
+const { RTCPeerConnection, RTCSessionDescription } = window;
+const peerConnection = new RTCPeerConnection();
+
 var myVideo;
 var otherVideo;
 var searchButton;
@@ -10,17 +13,16 @@ var localStream = new MediaStream();
 var remoteStream;
 
 var socket;
-var peer;
-var peerId;
 
-var currentCall = null;
+let isAlreadyCalling = false;
 
 window.onload = async () => {
     await sleep(1000)
     loadingScreen(0)
 
-    socket = io();
-    peer = new Peer(undefined, { debug: 3 });
+    socket = io("https://eric.huelsebus.com/", {
+        
+    });
     stopButton = document.getElementById('stop-button');
     searchButton = document.getElementById('search-button');
     nextButton = document.getElementById('next-button');
@@ -37,34 +39,6 @@ window.onload = async () => {
     nextButton.disabled = true;
 
     SetVideo();
-
-    peer.on('open', id =>{
-        peerId = id;
-    })
-
-    peer.on('error', (err) => {
-        console.log(err);
-    })
-
-    peer.on('connection', function(conn) {
-        conn.on('data', function(data){
-          // Will print 'hi!'
-          console.log(data);
-        });
-      });
-
-    peer.on('call', (call) => {
-        console.log('Call received');
-        call.answer(localStream);
-        currentCall = call
-        call.on('stream', function(remoteStream) {
-            console.log('nice');
-            AddVideoStream(otherVideo, stream)
-          });
-        call.on('error', (err) => {
-            console.log(err);
-        })
-    })
     
     //Buttons
     searchButton.addEventListener('click', e => {
@@ -111,7 +85,6 @@ window.onload = async () => {
         DisplayMessage('Searching')
         searchButton.style.visibility = 'hidden'
         stopButton.style.visibility = 'visible'
-        socket.emit('send-peer', peerId)
     })
 
     socket.on('receive-stop', () => {
@@ -124,26 +97,19 @@ window.onload = async () => {
         }
     })
 
-    socket.on('receive-matched', (_matchedUserId, _matchedUserPeer, _caller)=> {
-        console.log(`Matched with ${_matchedUserId}. PeerId: ${_matchedUserPeer}`)
-        DisplayMessage(`Matched with ${_matchedUserId}. PeerId: ${_matchedUserPeer}`)
+    socket.on('receive-matched', (_matchedUserId, _caller)=> {
+        console.log(`Matched with ${_matchedUserId}`)
+        DisplayMessage(`Matched with ${_matchedUserId}`)
 
-        if(_matchedUserPeer != null){
-            if(_caller){
-                Testing(_matchedUserPeer);
-            }
-        }else{
-            console.log('PeerId was empty')
+        if(_caller){
+            callUser(_matchedUserId);
         }
     })
 
-    socket.on('receive-endCall', (_matchedUserPeer) => {
+    socket.on('receive-endCall', (_matchedUserId) => {
         DisplayMessage('Call ended')
         searchButton.style.visibility = 'visible'
         stopButton.style.visibility = 'hidden'
-
-        if(currentCall != null) currentCall.close();
-        currentCall = null;
 
         otherVideo.pause()
         otherVideo.srcObject = null
@@ -168,6 +134,31 @@ window.onload = async () => {
                 break;
         }
     });
+
+    socket.on("call-made", async data => {
+        await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(data.offer)
+        );
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(new RTCSessionDescription(answer));
+        
+        socket.emit("make-answer", {
+            answer,
+            to: data.socket
+        });
+    });
+
+
+    socket.on("answer-made", async data => {
+        await peerConnection.setRemoteDescription(
+            new RTCSessionDescription(data.answer)
+        );
+        
+        if (!isAlreadyCalling) {
+            callUser(data.socket);
+            isAlreadyCalling = true;
+        }
+    });
 }
 
 //functions
@@ -184,6 +175,7 @@ async function SetVideo() {
         }).then(stream => {
             localstream = stream;
             AddVideoStream(myVideo, localstream);
+            stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         });
     }catch{
         console.log('could not find video device');
@@ -217,38 +209,22 @@ function RemoveVideoStream(video, stream){
     } 
 }
 
-function callUser(peerId){
-    console.log('You are caller. now calling');
-    const call = peer.call(peerId, localStream)
-    call.on('stream', (otherStream) => {
-        console.log('Received stream')
-        remoteStream = otherStream
-        AddVideoStream(otherVideo, remoteStream)
-    })
-    call.on('data', (otherStream) => {
-        console.log('Received data')
-        remoteStream = otherStream
-        AddVideoStream(otherVideo, remoteStream)
-    })
-    call.on('error', (err) => {
-        console.log(err);
-    })
-    call.on('close', () => {
-        console.log('DISCONNECTED');
-        RemoveVideoStream(otherVideo, remoteStream);
-    })
+async function callUser(socketId){
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
-    currentCall = call;
-}
-
-function Testing(peerId){
-    console.log(peerId);
-    var call = peer.call(peerId, localStream);
-    call.on('stream', function(stream) {
-        console.log('nice');
-        AddVideoStream(otherVideo, stream)
+    socket.emit("call-user", {
+        offer,
+        to: socketId
     });
 }
+
+peerConnection.ontrack = function({ streams: [stream] }) {
+    const remoteVideo = document.getElementById("video-remoteVid");
+    if (remoteVideo) {
+        remoteVideo.srcObject = stream;
+    }
+};
 
 // Send Debug
 function debug(arg) {
