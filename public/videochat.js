@@ -7,23 +7,63 @@ var testText;
 var testButton;
 
 var localStream = new MediaStream();
-var remoteStream
+var remoteStream;
 
 var socket;
+var peer;
+var peerId;
 
-window.onload = () => {
+var currentCall = null;
+
+window.onload = async () => {
+    await sleep(1000)
+    loadingScreen(0)
+
     socket = io();
+    peer = new Peer(undefined, { debug: 3 });
     stopButton = document.getElementById('stop-button');
     searchButton = document.getElementById('search-button');
     nextButton = document.getElementById('next-button');
     testText = document.getElementById('info-text');
+    myVideo = document.getElementById('video-localVid');
+    otherVideo = document.getElementById('video-remoteVid');
 
     //setting up
-    searchButton.style.visibility = 'visible'
-    stopButton.style.visibility = 'hidden'
+    searchButton.style.visibility = 'visible';
+    stopButton.style.visibility = 'hidden';
+    
+    searchButton.disabled = true;
+    stopButton.disabled = true;
+    nextButton.disabled = true;
 
-    socket.on('connect', () => {
-        console.log(`You connected with the id: ${socket.id}`);
+    SetVideo();
+
+    peer.on('open', id =>{
+        peerId = id;
+    })
+
+    peer.on('error', (err) => {
+        console.log(err);
+    })
+
+    peer.on('connection', function(conn) {
+        conn.on('data', function(data){
+          // Will print 'hi!'
+          console.log(data);
+        });
+      });
+
+    peer.on('call', (call) => {
+        console.log('Call received');
+        call.answer(localStream);
+        currentCall = call
+        call.on('stream', function(remoteStream) {
+            console.log('nice');
+            AddVideoStream(otherVideo, stream)
+          });
+        call.on('error', (err) => {
+            console.log(err);
+        })
     })
     
     //Buttons
@@ -51,8 +91,9 @@ window.onload = () => {
     //incomming connection
     socket.on('connect', () => {
         console.log(`You connected with the id: ${socket.id}`)
+        searchButton.style.visibility = 'visible'
+        stopButton.style.visibility = 'hidden'
         DisplayMessage(`You connected with the id: ${socket.id}`)
-        socket.emit('send-purpose', 'videochat')
     })
 
     socket.on('receive-message', message => {
@@ -70,23 +111,30 @@ window.onload = () => {
         DisplayMessage('Searching')
         searchButton.style.visibility = 'hidden'
         stopButton.style.visibility = 'visible'
-        SetVideo()
+        socket.emit('send-peer', peerId)
     })
 
     socket.on('receive-stop', () => {
         DisplayMessage('Stopped')
         searchButton.style.visibility = 'visible'
         stopButton.style.visibility = 'hidden'
-        RemoveVideoStream(myVideo, localStream)
-        otherVideo.pause()
-        otherVideo.srcObject = null
+        if(otherVideo != undefined){
+            otherVideo.pause()
+            otherVideo.srcObject = null
+        }
     })
 
-    socket.on('receive-matched', (_matchedUserId, _matchedUserPeer)=> {
-        console.log(`Matched with ${_matchedUserId}`)
-        DisplayMessage(`Matched with ${_matchedUserId}`)
+    socket.on('receive-matched', (_matchedUserId, _matchedUserPeer, _caller)=> {
+        console.log(`Matched with ${_matchedUserId}. PeerId: ${_matchedUserPeer}`)
+        DisplayMessage(`Matched with ${_matchedUserId}. PeerId: ${_matchedUserPeer}`)
 
-        //StartCall(_matchedUserPeer, localStream)
+        if(_matchedUserPeer != null){
+            if(_caller){
+                Testing(_matchedUserPeer);
+            }
+        }else{
+            console.log('PeerId was empty')
+        }
     })
 
     socket.on('receive-endCall', (_matchedUserPeer) => {
@@ -94,9 +142,9 @@ window.onload = () => {
         searchButton.style.visibility = 'visible'
         stopButton.style.visibility = 'hidden'
 
-        //if (peers[_matchedUserPeer]) peers[_matchedUserPeer].close()
+        if(currentCall != null) currentCall.close();
+        currentCall = null;
 
-        RemoveVideoStream(myVideo, localStream)
         otherVideo.pause()
         otherVideo.srcObject = null
     })
@@ -134,7 +182,6 @@ async function SetVideo() {
             video: true, 
             audio: true 
         }).then(stream => {
-            myVideo = document.getElementById('video-localVid');
             localstream = stream;
             AddVideoStream(myVideo, localstream);
         });
@@ -145,11 +192,17 @@ async function SetVideo() {
 
 function AddVideoStream(video, stream){
     if(video != null){
+        searchButton.disabled = false;
+        stopButton.disabled = false;
+        nextButton.disabled = false;
         video.srcObject = stream;
         video.addEventListener('loadedmetadata', () => {
             video.play();
         })
     }else{
+        searchButton.disabled = true;
+        stopButton.disabled = true;
+        nextButton.disabled = true;
         console.log('no video obj found');
     }
 }
@@ -164,10 +217,53 @@ function RemoveVideoStream(video, stream){
     } 
 }
 
-//
+function callUser(peerId){
+    console.log('You are caller. now calling');
+    const call = peer.call(peerId, localStream)
+    call.on('stream', (otherStream) => {
+        console.log('Received stream')
+        remoteStream = otherStream
+        AddVideoStream(otherVideo, remoteStream)
+    })
+    call.on('data', (otherStream) => {
+        console.log('Received data')
+        remoteStream = otherStream
+        AddVideoStream(otherVideo, remoteStream)
+    })
+    call.on('error', (err) => {
+        console.log(err);
+    })
+    call.on('close', () => {
+        console.log('DISCONNECTED');
+        RemoveVideoStream(otherVideo, remoteStream);
+    })
+
+    currentCall = call;
+}
+
+function Testing(peerId){
+    console.log(peerId);
+    var call = peer.call(peerId, localStream);
+    call.on('stream', function(stream) {
+        console.log('nice');
+        AddVideoStream(otherVideo, stream)
+    });
+}
 
 // Send Debug
 function debug(arg) {
     socket.emit('send-debug', (arg));
     return 'debug was send';
+}
+
+//Loader
+var loadingScreen = async (time) => {
+    await sleep(time);
+
+    $(".loader-wrapper").fadeOut("slow");
+}
+
+//Sleep
+function sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }

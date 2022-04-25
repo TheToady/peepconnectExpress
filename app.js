@@ -10,7 +10,6 @@ const workInProgress = require('./middleware/work-in-progress');
 const app = express();
 const http = require("http").Server(app);
 
-
 // Variablen
 const httpPort = 5080; // --> 2052
 
