@@ -145,10 +145,10 @@ body::-webkit-scrollbar-thumb {
     background-color: var(--color-trans-black);
 }
 
-#testContainer {
+#infoContainer {
     background-color: var(--color-trans-black);
 }
-#test-text {
+#info-text {
     font-size: 20px;
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -247,7 +247,7 @@ body::-webkit-scrollbar-thumb {
         height: 52vh;
     }
 
-    #testContainer {
+    #infoContainer {
         display: none;
     }
 
@@ -346,13 +346,13 @@ body::-webkit-scrollbar-thumb {
         height: 41vh;
     }
 
-    #testContainer {
+    #infoContainer {
+        width: 80%;
         height: 6vh;
-        width: 84%;
         float: left;
     }
 
-    #test-text {
+    #info-text {
         margin: 1.7vh 1vh;
         float: left;
         width: 80%;
@@ -360,30 +360,25 @@ body::-webkit-scrollbar-thumb {
 
     .button {
         margin: 1.3vh;
-        padding: 0.2rem 0.7rem;
-    }
-
-    #test-button {
-        float: right;
+        width: 40%;
+        padding: 0.2rem 0.2rem;
     }
 
     #buttonContainer {
         position: relative;
         float: right;
-        width: 8.7rem;
+        width: 19%;
         height: 6vh;
     }
     
     #stop-button {
         position: absolute;
-        padding: 0.2rem 1.1rem;
         top: 0;
         right: 0;
     }
 
     #search-button {
         position: absolute;
-        padding: 0.2rem 0.69rem;
         top: 0;
         right: 0;
     }

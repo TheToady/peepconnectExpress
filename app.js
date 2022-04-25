@@ -3,13 +3,12 @@ const fs = require('fs')
 const express = require('express');
 const path = require('path');
 
-var videochat = require('./lib/videochat');
+const videochat = require('./lib/videochat');
 const notFound = require('./middleware/not-found');
 const workInProgress = require('./middleware/work-in-progress');
 
 const app = express();
 const http = require("http").Server(app);
-
 
 
 // Variablen
@@ -43,5 +42,5 @@ app.all('*', (req, res) => {
 
 
 http.listen(httpPort,() => {
-    console.log('Http server is running on port ' + httpPort);
+    console.log('\x1b[33m%s\x1b[0m','Http server is running on port ' + httpPort);
 });
