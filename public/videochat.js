@@ -1,5 +1,7 @@
 const { RTCPeerConnection, RTCSessionDescription } = window;
-const peerConnection = new RTCPeerConnection();
+const signaling = new SignalingChannel();
+const rtcConf = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }], 'sdpSemantics': 'unified-plan' }
+const pc = new RTCPeerConnection(rtcConf);
 
 var myVideo;
 var otherVideo;
@@ -20,9 +22,14 @@ window.onload = async () => {
     await sleep(1000)
     loadingScreen(0)
 
-    socket = io("https://eric.huelsebus.com/", {
-        
+    const serverCert = $.get('cert.pem', (data) => {return data})
+    const clientCert = $.get('client-cert.pem', (data) => {return data})
+    const clientKey = $.get('client-key.pem', (data) => {return data})
+
+    socket = io(undefined, {
+        transports: ["polling"]
     });
+    
     stopButton = document.getElementById('stop-button');
     searchButton = document.getElementById('search-button');
     nextButton = document.getElementById('next-button');
@@ -74,21 +81,16 @@ window.onload = async () => {
         DisplayMessage(message)
     })
 
-    socket.on('receive-test', (users, searchingUsers) => {
-
-        DisplayMessage(`${users.length} user/s online. ${searchingUsers.length} user/s searching`)
-
-        console.log(users)
-    })
-
     socket.on('receive-search', () => {
         DisplayMessage('Searching')
+        console.log('Now searching')
         searchButton.style.visibility = 'hidden'
         stopButton.style.visibility = 'visible'
     })
 
     socket.on('receive-stop', () => {
         DisplayMessage('Stopped')
+        console.log('Call stopped')
         searchButton.style.visibility = 'visible'
         stopButton.style.visibility = 'hidden'
         if(otherVideo != undefined){
@@ -100,7 +102,8 @@ window.onload = async () => {
     socket.on('receive-matched', (_matchedUserId, _caller)=> {
         console.log(`Matched with ${_matchedUserId}`)
         DisplayMessage(`Matched with ${_matchedUserId}`)
-
+        
+        videochatHandler(_matchedUserId);
         if(_caller){
             callUser(_matchedUserId);
         }
@@ -136,6 +139,7 @@ window.onload = async () => {
     });
 
     socket.on("call-made", async data => {
+        console.log('answer call')
         await peerConnection.setRemoteDescription(
             new RTCSessionDescription(data.offer)
         );
@@ -150,14 +154,17 @@ window.onload = async () => {
 
 
     socket.on("answer-made", async data => {
+        console.log('answer received')
         await peerConnection.setRemoteDescription(
             new RTCSessionDescription(data.answer)
         );
         
-        if (!isAlreadyCalling) {
-            callUser(data.socket);
-            isAlreadyCalling = true;
-        }
+        // if (!isAlreadyCalling) {
+        //     callUser(data.socket);
+        //     isAlreadyCalling = true;
+        // }else{
+        //     console.log('is calling')
+        // }
     });
 }
 
@@ -209,7 +216,12 @@ function RemoveVideoStream(video, stream){
     } 
 }
 
+function videochatHandler(socketId){
+    
+}
+
 async function callUser(socketId){
+    console.log('call user')
     const offer = await peerConnection.createOffer();
     await peerConnection.setLocalDescription(new RTCSessionDescription(offer));
 
@@ -220,6 +232,7 @@ async function callUser(socketId){
 }
 
 peerConnection.ontrack = function({ streams: [stream] }) {
+    console.log('got remote video')
     const remoteVideo = document.getElementById("video-remoteVid");
     if (remoteVideo) {
         remoteVideo.srcObject = stream;
