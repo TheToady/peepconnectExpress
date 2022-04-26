@@ -1,3 +1,7 @@
 /node_modules
 /oldcode
 /notWorking
+/ssl
+/public/client-key.pem
+/public/client-cert.pem
+/public/cert.pem

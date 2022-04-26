@@ -6,7 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="videochat.css">
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
+        <!-- <script src="/socket.io/socket.io.js"></script> -->
+        <script type="module">
+            import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
+            window.io = io;
+        </script>
         <script src="videochat.js"></script>
         <title>PeepConnect - Chat</title>
     </head>
