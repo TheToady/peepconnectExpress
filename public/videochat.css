@@ -226,6 +226,20 @@ video {
     100% { height: 0%;}
 }
 
+/* NoCam screen */
+.nocam-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--color-bg-primary);
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
 /* Small Screens */
 @media only screen and (max-width: 900px) {
 
