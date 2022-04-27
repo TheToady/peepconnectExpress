@@ -136,6 +136,10 @@ window.onload = async () => {
         console.log(`Matched with ${_matchedUserId}`)
         DisplayMessage(`Matched with ${_matchedUserId}`)
 
+        if(peer.connectionState != 'new'){
+            peer = null
+            peer = new RTCPeerConnection(rtcConf);
+        }
         videochatHandler();
         if(_caller){
             callUser();
@@ -190,8 +194,8 @@ async function SetVideo() {
                 peer.addTrack(track, stream)
             });
         });
-    }catch{
-        console.log('could not find video device');
+    }catch (e){
+        console.log('could not find video device: ', e);
     }
 }
 
@@ -224,6 +228,7 @@ function RemoveVideoStream(video, stream){
 }
 
 function videochatHandler(){
+    
     localStream.getTracks().forEach((track) => {
         peer.addTrack(track);
     });
@@ -239,12 +244,10 @@ function videochatHandler(){
     socket.on('receive-offer', async (offer) => {
         console.log('Received offer')
         peer.onicecandidate = event => {
-            console.log("New Ice Candidate!");
             socket.emit('send-ice', (event.candidate));
         }
         console.log(peer.connectionState)
         console.log(peer.iceConnectionState)
-
         await peer.setRemoteDescription(new RTCSessionDescription(offer));
 
         const answerDesc = await peer.createAnswer();
@@ -261,8 +264,6 @@ function videochatHandler(){
         socket.emit('send-answer', (answer));
 
         socket.on('receive-ice', ice => {
-            console.log("New Ice Candidate received!")
-            console.log("New Ice Candidate received!")
             addIceCandidate(ice)
         });
         console.log(peer);
@@ -288,16 +289,16 @@ async function callUser(){
 
     socket.emit('send-offer', offer, offerCandidates);
 
-    socket.on('receive-answer', (answer) => {
+    socket.on('receive-answer', async (answer) => {
         if(!peer.currentRemoteDescription) {
             const answerDesc = new RTCSessionDescription(answer);
-            peer.setRemoteDescription(answerDesc);
+            await peer.setRemoteDescription(new RTCSessionDescription(answerDesc));
         }
-        socket.on('receive-ice', ice => {
-            console.log("New Ice Candidate received!")
-            addIceCandidate(ice)
-        })
         console.log(peer);
+    })
+    socket.on('receive-ice', ice => {
+        console.log("New Ice Candidate received!")
+        addIceCandidate(ice)
     })
 }
 
